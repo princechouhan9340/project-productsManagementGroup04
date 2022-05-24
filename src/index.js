@@ -4,7 +4,7 @@ const express = require('express')
 // INSTATIATE THE EXPRESS APP------
 const app = express()
 
-// IMPORT EXPRESS PACKAGE( COMMOM JS SYNTEX )------
+// IMPORT MULTER PACKAGE------
 const multer = require("multer")
 const { AppConfig } = require('aws-sdk');
 
@@ -21,7 +21,7 @@ app.use(multer().any())
 
 
 // DECLARE  A DATABASE STRING URL----
-mongoose.connect('"mongodb+srv://uranium-cohort:zxN697Vko486ved2@cluster0.23vax.mongodb.net/group4-DB"',
+mongoose.connect("mongodb+srv://uranium-cohort:zxN697Vko486ved2@cluster0.23vax.mongodb.net/group4-DB",
 {
     useNewUrlParser: true,
     useUnifiedTopology: true

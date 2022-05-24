@@ -380,6 +380,10 @@ const updateUser = async function(req, res)
       //   const userId = req.params.userId
         const userIdFromParams = req.params.userId;
         console.log(userIdFromParams)
+
+        // if (!isValidObjectId(userIdFromParams)) {
+        //     return res.status(400).send({ status: false, message: "Valid userId is required..!!" });
+        // }
         const userIdFromToken = req.userId;
        console.log(userIdFromToken)
         const { fname, lname, email, phone, password, address } = data;
@@ -482,17 +486,11 @@ const updateUser = async function(req, res)
                 updatedData["address.billing.pincode"] = address.billing.pincode;
             }
         }
-      
-        if (!isValidObjectId(userIdFromParams)) {
-            return res.status(400).send({ status: false, message: "Valid userId is required..!!" });
-        }
-
-         
-      
+    
               
         //=========================================update data=============================
       
-        const updatedUser = await userModel.findOneAndUpdate({ _id: userId }, updatedData, { new: true });
+        const updatedUser = await userModel.findOneAndUpdate({ _id:userIdFromParams }, updatedData, { new: true });
       
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser });
     }

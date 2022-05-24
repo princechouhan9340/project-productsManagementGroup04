@@ -13,7 +13,7 @@ router.get('/test-me', function(req, res) {
 router.post('/register', UserController.userRegistration)
 router.post('/login', UserController.login)
 router.get("/user/:userId/profile",middleware.authentication, UserController.getUser)
-router.put("/user/:userId/profile", UserController.updateUser)
+router.put("/user/:userId/profile",middleware.authentication, UserController.updateUser)
 
 
 module.exports = router

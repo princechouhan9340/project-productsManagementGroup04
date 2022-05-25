@@ -29,8 +29,7 @@ const authentication =  (req, res, next) => {
         const decoded =  jwt.verify(token, 'Group-4');
         //console.log(decoded)
         if(!decoded) {
-            res.status(403).send({status: false, message: `Invalid authentication token in request`})
-            return
+            return res.status(403).send({status: false, message: `Invalid authentication token in request`})  
         }
 
         req.userId = decoded.userId

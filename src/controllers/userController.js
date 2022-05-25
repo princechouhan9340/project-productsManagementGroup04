@@ -54,46 +54,50 @@ const isValidInputBody = function(object) {
     return Object.keys(object).length > 0
 }
 
-
+//VALIDATION FOR STRING------
 const isValidInputValue = function(value) {
     if (typeof(value) === 'undefined' || value === null) return false
     if (typeof(value) === 'string' && value.trim().length > 0) return true
     return false
 }
 
+//VALIDATION FOR CHARACTERS----
 const isValidOnlyCharacters = function(value) {
     return /^[A-Za-z]+$/.test(value)
 }
 
+//VALIDATION FOR ADDRESS-----
 const isValidAddress = function(value) {
     if (typeof(value) === "undefined" || value === null) return false;
     if (typeof(value) === "object" && Array.isArray(value) === false && Object.keys(value).length > 0) return true;
     return false;
 };
 
+//VALIDATION FOR EMAIL-----
 const isValidEmail = function(email) {
     const regexForEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
     return regexForEmail.test(email);
 };
 
+//VALIDATION FOR PHONE NUMBER-----
 const isValidPhone = function(phone) {
     const regexForMobile = /^[6-9]\d{9}$/;
     return regexForMobile.test(phone);
 };
 
+//VALIDATION FOR PASSWORD-----
 const isValidPassword = function(password) {
     const regexForPass = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$/;
     return regexForPass.test(password);
 };
 
-
+// VALIDATION FOR PIN-CODE-----
 const isValidPincode = function(pincode) {
     const regexForPass = /^[1-9][0-9]{5}$/
     return regexForPass.test(pincode);
 };
 
-
-
+//VALIDATION FOR FILE ONLY IMAGE-----
 const isValidImageType = function(value) {
     const regexForMimeTypes = /image\/png|image\/jpeg|image\/jpg/;
     return regexForMimeTypes.test(value)
@@ -103,15 +107,17 @@ const isValidImageType = function(value) {
 
 const userRegistration = async function(req, res) {
     try {
-        const requestBody = {...req.body };
+        //FETCH DATA FROM REQUEST AND DESTRUCTURING-----
+        const requestBody = { ...req.body };
         const queryParams = req.query;
         const image = req.files;
 
-        //no data is required from query params
+        //NO DATA IS REQUIRE FORM QUERY PAREMS-----
         if (isValidInputBody(queryParams)) {
             return res.status(404).send({ status: false, message: "Page not found" });
         }
 
+        // CHECK REQUEST BODY IS EMPTY OR NOT-----
         if (!isValidInputBody(requestBody)) {
             return res.status(400).send({
                 status: false,
@@ -119,10 +125,10 @@ const userRegistration = async function(req, res) {
             });
         }
 
-        //using destructuring
+        //DESTRUCTURING DATA FROM REQUEST BODY-----
         let { fname, lname, email, phone, password, address } = requestBody;
 
-        // each key validation starts here
+        //EACH KEY VALIDATION STARTS HERE----- 
         if (!isValidInputValue(fname) || !isValidOnlyCharacters(fname)) {
             return res.status(400).send({
                 status: false,
@@ -141,7 +147,7 @@ const userRegistration = async function(req, res) {
                 .status(400)
                 .send({ status: false, message: "email address is required and should be a valid email address" });
         }
-        // email should be unique
+        //CHEACK GIVEN EMAIL IS UNIQUE----- 
         const notUniqueEmail = await UserModel.findOne({ email });
 
         if (notUniqueEmail) {
@@ -158,6 +164,7 @@ const userRegistration = async function(req, res) {
 
         const notUniquePhone = await UserModel.findOne({ phone });
 
+        //CHECK GIVEN PHONE IS UNIQUE------
         if (notUniquePhone) {
             return res
                 .status(400)
@@ -176,6 +183,7 @@ const userRegistration = async function(req, res) {
                 .send({ status: false, message: "address is required" });
         }
 
+        //CONVERT ADDRESS INTO OBJECT------ 
         address = JSON.parse(address);
 
         if (!isValidAddress(address)) {
@@ -259,7 +267,7 @@ const userRegistration = async function(req, res) {
 
         const uploadedProfilePictureUrl = await uploadFile(image[0]);
 
-        // password encryption
+        //PASSWORD ENCRYPTION BY USING BCRYPT----- 
         const salt = await bcrypt.genSalt(13);
         const encryptedPassword = await bcrypt.hash(password, salt);
 
@@ -272,7 +280,7 @@ const userRegistration = async function(req, res) {
             password: encryptedPassword,
             address: address,
         };
-        // registering a new user
+        // CREATE DATA IN DATABASE----- 
         const newUser = await UserModel.create(userData);
 
             res.status(201).send({
@@ -300,21 +308,21 @@ const login = async function (req, res) {
             return res.status(400).send({ status: false, msg: "pls provide details to login" })
         }
 
-        //
+        //VALIDATE EMAIL BY USING REGEX------
         if (!isValid(email)) {
             return res.status(400).send({ status: false, msg: "pls provide valid email" })
         }
-        //VALIDATE EMAIL BY USING REGEX------
+        
         if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
             return res.status(400).send({ status: false, message: `${email} should be a valid email address` })
 
         }
 
+        // VALIDATE PASSWORD BY USING REGEX------
         if (!isValid(password)) {
             return res.status(400).send({ status: false, msg: "pls provide valid password" })
         }
 
-        // VALIDATE PASSWORD BY USING REGEX------
         if (!(/^[a-zA-Z0-9!@#$%^&*]{8,15}$/.test(password))) {
             return res.status(400).send({ status: false, message: `Password length should be A Valid Password And Length Should Be in between 8 to 15 ` });
 
@@ -352,16 +360,25 @@ const getUser = async function (req, res) {
     try {
         //FETCH USERID FROM THE PARAMS-----
         const userIdInParams = req.params.userId
-        console.log(userIdInParams)
+        //console.log(userIdInParams)
         let decodedToken = req.userId
-        console.log(decodedToken)
-        if(decodedToken != userIdInParams){
+        //console.log(decodedToken)
+        
+        //CHECK USERID GIVEN IN PAREM IS VALID OR NOT-----
+        if(userIdInParams.length != 24){
+            return res.status(400).send({status:false,message:"invalid object id"})
+        }
 
+        // COMPARE USERID PRESENT IN PAREMS AND TOKEN-----
+        if(decodedToken != userIdInParams){
             return res.status(403).send({status:false, message:"User Not authorized!" })
          }
 
-        //MAKE BD CALL TO FIND USER DETAIL BY USERID----
+        //MAKE DB CALL TO FIND USER DOCUMENT BY USERID----
         let userDetail = await userModel.findOne({_id:userIdInParams})
+        if(!userDetail){
+            return res.status(400).send({ status: false,message: "User profile not found"})
+        }
         res.status(200).send({ status: true,message: "User profile details",data:userDetail})
 
     } catch (err) {
@@ -373,19 +390,27 @@ const updateUser = async function(req, res)
 {
     try
     {
+        //FETCH DATA FROM REQUEST BODY-----
         let data = req.body;
         if (Object.keys(data) == 0){
              return res.status(400).send({status: false,msg: "please provide data to update..!!"})
         }
-      //   const userId = req.params.userId
+        //FETCH USER ID FROM PARAMS----- 
         const userIdFromParams = req.params.userId;
-        console.log(userIdFromParams)
+       
+        //CHECK COJECT ID IS VALID OR NOT-----
+        if(userIdFromParams.length != 24){
+            return res.status(400).send({status:false,message:"invalid object id"})
+        }
 
-        // if (!isValidObjectId(userIdFromParams)) {
-        //     return res.status(400).send({ status: false, message: "Valid userId is required..!!" });
-        // }
+        //FETCH USER ID PRESENT IN TOKEN BY REQUEST BODY-----
         const userIdFromToken = req.userId;
-       console.log(userIdFromToken)
+
+        if(userIdFromParams != userIdFromToken){
+            return res.status(400).send({status:false,message:"you are not authorised"})
+        }
+       
+        //DESTRUCTURING OF DATA-----
         const { fname, lname, email, phone, password, address } = data;
       
         const updatedData = {}
@@ -413,14 +438,14 @@ const updateUser = async function(req, res)
       
         if (email)
          {
-            if (!(isEmailValid(email.trim()))) return res.status(400).send({ status: false, msg: "Please provide a valid email..!!" });
+            if (!(isValidEmail(email.trim()))) return res.status(400).send({ status: false, msg: "Please provide a valid email..!!" });
             const isEmailUsed = await userModel.findOne({ email: email });
             if (isEmailUsed) return res.status(400).send({ status: false, msg: "email must be unique..!!" });
             updatedData.email = email;
         }
       
         //=======================profile pic upload and validation==========================
-      
+        //LEVEL OF CODING IT INDICATES THE DEFICELTY LEVEL I.E FORM 4 TO 14
         let saltRounds = 10;
         const files = req.files;
       
@@ -435,7 +460,7 @@ const updateUser = async function(req, res)
         if (phone)
         {
       
-            if (!(isPhoneValid(phone))) return res.status(400).send({ status: false, msg: "please provide a valid phone number..!!" });
+            if (!(isValidPhone(phone))) return res.status(400).send({ status: false, msg: "please provide a valid phone number..!!" });
       
             const isPhoneUsed = await userModel.findOne({ phone: phone });
             if (isPhoneUsed) return res.status(400).send({ status: false, msg: "phone number must be unique..!!" });
@@ -458,32 +483,38 @@ const updateUser = async function(req, res)
       
             if (address.shipping)
             {
-      
+                if(address.shipping.street){
                 if (!isValid(address.shipping.street)) return res.status(400).send({ status: false, Message: "street name is required..!!" }); 
                 updatedData["address.shipping.street"] = address.shipping.street;
-      
+                }
+
+                if(address.shipping.city){
                 if (!isValid(address.shipping.city)) return res.status(400).send({ status: false, Message: "city name is required..!!" });
-      
                 updatedData["address.shipping.city"] = address.shipping.city;
-      
+                }
+
+                if(address.shipping.pincode){
                 if (!isValid(address.shipping.pincode)) return res.status(400).send({ status: false, Message: "pincode is required..!!" });
-                
                 updatedData["address.shipping.pincode"] = address.shipping.pincode;
+                }
             }
       
             if (address.billing)
              {
+                 if(address.billing.street){
                 if (!isValid(address.billing.street)) return res.status(400).send({ status: false, Message: "Please provide street name in billing address..!!" });
-                
                 updatedData["address.billing.street"] = address.billing.street;
-      
+                }
+
+                if(address.billing.city){
                 if (!isValid(address.billing.city)) return res.status(400).send({ status: false, Message: "Please provide city name in billing address..!!" });
-                
                 updatedData["address.billing.city"] = address.billing.city
-      
+                }
+
+                if(address.billing.pincode){
                 if (!isValid(address.billing.pincode)) return res.status(400).send({ status: false, Message: "Please provide pincode in billing address..!!;" })
-                
                 updatedData["address.billing.pincode"] = address.billing.pincode;
+                }
             }
         }
     

@@ -119,10 +119,7 @@ const userRegistration = async function(req, res) {
 
         // CHECK REQUEST BODY IS EMPTY OR NOT-----
         if (!isValidInputBody(requestBody)) {
-            return res.status(400).send({
-                status: false,
-                message: "User data is required for registration",
-            });
+            return res.status(400).send({status: false,message: "User data is required for registration"});
         }
 
         //DESTRUCTURING DATA FROM REQUEST BODY-----
@@ -130,139 +127,95 @@ const userRegistration = async function(req, res) {
 
         //EACH KEY VALIDATION STARTS HERE----- 
         if (!isValidInputValue(fname) || !isValidOnlyCharacters(fname)) {
-            return res.status(400).send({
-                status: false,
-                message: "First name is required and it should contain only alphabets",
-            });
+            return res.status(400).send({status: false,message: "First name is required and it should contain only alphabets"});
         }
 
         if (!isValidInputValue(lname) || !isValidOnlyCharacters(lname)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Last name is required and it should contain only alphabets" });
+            return res.status(400).send({ status: false, message: "Last name is required and it should contain only alphabets" });
         }
 
         if (!isValidInputValue(email) || !isValidEmail(email)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "email address is required and should be a valid email address" });
+            return res.status(400).send({ status: false, message: "email address is required and should be a valid email address" });
         }
         //CHEACK GIVEN EMAIL IS UNIQUE----- 
         const notUniqueEmail = await UserModel.findOne({ email });
 
         if (notUniqueEmail) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Email address already exist" });
+            return res.status(400).send({ status: false, message: "Email address already exist" });
         }
 
         if (!isValidInputValue(phone) || !isValidPhone(phone)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Phone number is required and should be a valid mobile number" });
+            return res.status(400).send({ status: false, message: "Phone number is required and should be a valid mobile number" });
         }
 
         const notUniquePhone = await UserModel.findOne({ phone });
 
         //CHECK GIVEN PHONE IS UNIQUE------
         if (notUniquePhone) {
-            return res
-                .status(400)
-                .send({ status: false, message: "phone number already exist" });
+            return res.status(400).send({ status: false, message: "phone number already exist" });
         }
 
         if (!isValidInputValue(password) || !isValidPassword(password)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "password is required and should be of 8 to 15 characters and  must have 1 letter and 1 number" });
+            return res.status(400).send({ status: false, message: "password is required and should be of 8 to 15 characters and  must have 1 letter and 1 number" });
         }
 
         if (!isValidInputValue(address)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "address is required" });
+            return res.status(400).send({ status: false, message: "address is required" });
         }
 
         //CONVERT ADDRESS INTO OBJECT------ 
         address = JSON.parse(address);
 
         if (!isValidAddress(address)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Invalid address" });
+            return res.status(400).send({ status: false, message: "Invalid address" });
         }
 
         const { shipping, billing } = address;
 
         if (!isValidAddress(shipping)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Shipping address is required" });
+            return res.status(400).send({ status: false, message: "Shipping address is required" });
         } else {
             let { street, city, pincode } = shipping;
 
             if (!isValidInputValue(street)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "Shipping address: street name is required ",
-                });
+                return res.status(400).send({status: false,message: "Shipping address: street name is required "});
             }
 
             if (!isValidPincode(pincode)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "Shipping address: pin code should be valid like: 335659 ",
-                });
+                return res.status(400).send({status: false,message: "Shipping address: pin code should be valid like: 335659 "});
             }
             
             if (!isValidInputValue(city)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "Shipping address: city name is required ",
-                });
+                return res.status(400).send({status: false,message: "Shipping address: city name is required "});
             } 
         }
 
         if (!isValidAddress(billing)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Billing address is required" });
-        } else {
+            return res.status(400).send({ status: false, message: "Billing address is required" });
+        } 
+        else {
             let { street, city, pincode } = billing;
 
             if (!isValidInputValue(street)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "Billing address: street name is required ",
-                });
+                return res.status(400).send({status: false,message: "Billing address: street name is required "});
             }
 
             if (!isValidPincode(pincode)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "Billing address: pin code should be valid like: 335659 ",
-                });
+                return res.status(400).send({status: false,message: "Billing address: pin code should be valid like: 335659 "});
             }
 
             if (!isValidInputValue(city)) {
-                return res.status(400).send({
-                    status: false,
-                    message: "Shipping address: city name is required ",
-                });
+                return res.status(400).send({status: false,message: "Shipping address: city name is required ",});
             }       
             
         }
 
         if (!image || image.length == 0) {
-            return res
-                .status(400)
-                .send({ status: false, message: "no profile image found" });
+            return res.status(400).send({ status: false, message: "no profile image found" });
         }
 
         if (!isValidImageType(image[0].mimetype)) {
-            return res
-                .status(400)
-                .send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
+            return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
         }
 
         const uploadedProfilePictureUrl = await uploadFile(image[0]);

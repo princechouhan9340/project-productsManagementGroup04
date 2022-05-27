@@ -4,8 +4,7 @@ const AWS = require("aws-sdk")
 const mongoose = require("mongoose");
 //const currencySymbol = require("currency-symbol-map");
 
-// validation for objectId
-
+// validation for objectId-----
 const isValidObjectId = function (objectId) {
     return mongoose.Types.ObjectId.isValid(objectId)
 
@@ -32,7 +31,7 @@ const isValidImageType = function (value) {
     return regexForMimeTypes.test(value)
 }
 
-// aws configuration//////////
+// aws configuration--------
 AWS.config.update({
     accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
     secretAccessKey: "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",
@@ -41,7 +40,7 @@ AWS.config.update({
 
 let uploadFile = async (file) => {
     return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
+        // this function will upload file to aws and return the link------
         let s3 = new AWS.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
 
         var uploadParams = {
@@ -75,17 +74,6 @@ const isValid = function (value) {
 //VALIDATION FOR CHECK DATA IN REQ BODY-----
 
 
-const validForEnum = function (value) 
-{
-    let enumValue = ["S", "XS", "M", "X", "L", "XXL", "XL"];
-    //value = JSON.parse(value)
-    for (let x of value) 
-    {
-        if (enumValue.includes(x) == 0) return false;
-    }
-    return true;
-}
-
 const createProduct = async function (req, res) {
     try {
 
@@ -95,7 +83,7 @@ const createProduct = async function (req, res) {
         if (Object.keys(data).length == 0) { return res.status(400).send({ status: false, msg: "please input some data..!!" }) };
         const { title, description, price, currencyId, currencyFormat, isFreeShipping, style, availableSizes, installments } = data;
 
-        //     title validation
+        //title validation-----
 
         if (!title) { return res.status(400).send({ status: false, msg: "title required..!!" }) };
 
@@ -105,7 +93,7 @@ const createProduct = async function (req, res) {
 
         if (duplicateTitle) return res.status(400).send({ status: false, msg: "title already exist in use..!!" });
 
-        // description validation
+        // description validation------
 
         if (!description) return res.status(400).send({ status: false, msg: "description required..!!" });
 
@@ -116,18 +104,43 @@ const createProduct = async function (req, res) {
         if (!currencyId) return res.status(400).send({ status: false, msg: "currencyId required..!!" });
         if (!currencyFormat) return res.status(400).send({ status: false, msg: "currency format required..!!" });
 
-        //if(!validForEnum(availableSizes)) return res.status(400).send({status:false, msg: "please choose the size from the available sizes.!!"});
+    
+        //IF SIZE IS IN STRING----
         if (availableSizes) {
-            if (!isValidInputValue(availableSizes)) {
-                return res.status(400).send({ status: false, message: "Invalid format of availableSizes" });
-            }
-        let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-        for(let i =0; i<availableSize.length; i++){
-            if(availableSizes != availableSize[i]){
+            if (typeof (availableSizes == "string")) {
+                if (!isValidInputValue(availableSizes)) {
+                    return res.status(400).send({ status: false, message: "Invalid format of availableSizes" });
+                }
+                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                for (let i = 0; i < availableSize.length; i++) {
+                    if (availableSizes == availableSize[i]) {
+                        continue;
+                    }
+                }
+            }else{
                 return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
         }
-    }
+
+        //IF SIZE IS IN ARRAY----
+        console.log(availableSizes)
+        let size = availableSizes.split(",").map(x => (x))
+        if (availableSizes) {
+                console.log(size)
+                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+
+                for (let i = 0; i < availableSize.length; i++) {
+                    for (let j = 0; j < size.length; j++)
+                    if (size[j] == availableSize[i]) {
+                       continue;
+                    }
+                }
+            }else{
+                return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
+            }
+        data.availableSizes = size
+
+
         if (currencyId != "INR") return res.status(400).send({ status: false, msg: "only indian currencyId INR accepted..!!" })
 
         if (currencyFormat != "₹") return res.status(400).send({ status: false, msg: "only indian currency ₹ accepted..!!" });
@@ -156,7 +169,7 @@ const getProduct = async function (req, res) {
     try {
         //DESTRUCTURING DATA FETCHED FROM QUERY PARAMS-----
         let { name, size, priceGreaterThan, priceLessThan } = req.query
-        
+
         // CHECK FILTER PRESENT OR NOT-----
         if (Object.keys(req.query).length == 0) {
             let find = await productModel.find({ isDeleted: false }).sort({ title: 1 })
@@ -169,35 +182,34 @@ const getProduct = async function (req, res) {
             };
             let obj2 = {}
             //IF PRODUCT NAME PRESENT IN QUERY PARAMS----
-            if (name){
+            if (name) {
                 if (!isValidInputValue(name)) {
                     return res.status(400).send({ status: false, msg: "product name is required..!!" });
                 }
-            obj.$regex = name
+                obj.$regex = name
             }
             //IF PRODUCT SIZE PRESENT IN QUERY PARAMS----
-            if (size){  
-            obj2.availableSizes = size
+            if (size) {
+                obj2.availableSizes = size
             }
 
             //IF PRODUCT PRISE PRESENT IN QUERY PARAMS----
-            if (priceGreaterThan){
+            if (priceGreaterThan) {
                 if (!isValidPrice(priceGreaterThan)) {
                     return res.status(400).send({ status: false, message: "Invalid price" });
                 }
             }
             obj.$gt = priceGreaterThan
-            if (priceLessThan){
+            if (priceLessThan) {
                 if (!isValidPrice(priceLessThan)) {
                     return res.status(400).send({ status: false, message: "Invalid price" });
                 }
-            obj.$lt = priceLessThan
+                obj.$lt = priceLessThan
             }
             //IF MORE THEN ONE FILTER PRESENT FOR SINGLE ATTRIBUTE-----
             for (let key in obj2) {
                 if (typeof (obj2[key]) == "string") {
                     obj2[key] = obj2[key].split(",")
-
                     for (let i = 0; i < obj2[key].length; i++)
                         obj2[key][i] = obj2[key][i].trim()
                     //$all in mongo that select the documents where the field holdes an array and contain all elements----
@@ -206,23 +218,24 @@ const getProduct = async function (req, res) {
                 else {
                     obj2[key] = { $all: obj2[key] }
                 }
-             }
-            
-            //VALIDATION FOR SIZE-----
-            if(obj2.availableSizes){
-            let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-                for(let i =0; i<availableSize.length; i++){
-                    for(let j=0; j<(obj2.availableSizes.$all).length;j++)
-                    if(obj2.availableSizes.$all[j] == availableSize[i]){
-                        continue;
-                    }
-                }
-            }else{
-                return res.status(400).send({ status: false, message: "Invalid format of Sizes" });
-                
             }
-             //spread operator doing yhe concat job i.e add obj----
-            const filterData = await productModel.find({...obj,...obj2 }).sort({ price: 1 })
+
+            //VALIDATION FOR SIZE-----
+            if (obj2.availableSizes) {
+                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                for (let i = 0; i < availableSize.length; i++) {
+                    for (let j = 0; j < (obj2.availableSizes.$all).length; j++)
+                        if (obj2.availableSizes.$all[j] == availableSize[i]) {
+                            continue;
+                        }
+                }
+            } else {
+                return res.status(400).send({ status: false, message: "Invalid format of Sizes" });
+
+            }
+            //let {a=9},let{ b= 10 }  let c = {a=9,b=10} === {...a,...b}
+            //spread operator doing yhe concat job i.e add obj----
+            const filterData = await productModel.find({ ...obj, ...obj2 }).sort({ price: 1 })
 
             if (filterData.length == 0) {
                 return res.status(400).send({ status: false, message: "prodect not found" })
@@ -253,7 +266,7 @@ const getProductById = async function (req, res) {
         //CHECK PRODUCT PRESENT WITH GIVEN PRDUCT-ID IS DELETE OR NOT IF NOT NOT DELETED RETURN DOCUMENT-----
         let product = await productModel.findOne({ _id: productId, isDeleted: false })
         if (!product) {
-            return res.status(400).send({ status: false, msg: "No product available" })
+            return res.status(400).send({ status: false, msg: "No product available or product deleted" })
         }
         return res.status(200).send({ status: true, msg: "Success", data: product })
 
@@ -278,14 +291,14 @@ const updateProductDetails = async function (req, res) {
             return res.status(404).send({ status: false, message: "Page not found" });
         }
         // checking product exist with product ID
-        const productByProductId = await productModel.findOne({ _id: productId,isDeleted: false});
+        const productByProductId = await productModel.findOne({ _id: productId, isDeleted: false });
 
         if (!productByProductId) {
             return res.status(404).send({ status: false, message: "No product found by product id" });
         }
 
-        if (!isValidInputBody(requestBody) &&typeof image === undefined) {
-            return res.status(400).send({status: false,message: "Update related product data required",});
+        if (!isValidInputBody(requestBody) && typeof image === undefined) {
+            return res.status(400).send({ status: false, message: "Update related product data required", });
         }
 
         let {
@@ -307,7 +320,7 @@ const updateProductDetails = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Invalid title" });
             }
 
-            const notUniqueTitle = await productModel.findOne({title: title,});
+            const notUniqueTitle = await productModel.findOne({ title: title, });
 
             if (notUniqueTitle) {
                 return res.status(400).send({ status: false, message: "Product title already exist" });
@@ -344,25 +357,56 @@ const updateProductDetails = async function (req, res) {
             updates["$set"]["style"] = style;
         }
         //if request body has key name "availableSizes" then after validating its value, same is added to updates object
-        if (requestBody.hasOwnProperty("availableSizes")) {
-            // if (!isValidInputValue(availableSizes)) {
-            //     return res.status(400).send({ status: false, message: "Invalid format of availableSizes" });
-            // }
+        // if (requestBody.hasOwnProperty("availableSizes")) {
+        //     if (Array.isArray(availableSizes) && availableSizes.length > 0) {
+        //         for (let i = 0; i < availableSizes.length; i++) {
+        //             const element = availableSizes[i];
+        //             if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(element)) {
+        //                 return res.status(400).send({ status: false, message: `available sizes should be from:  S, XS, M, X, L, XXL, XL`, });
+        //             }
+        //         }
+        //         updates["$set"]["availableSizes"] = availableSizes;
+        //     } else {
+        //         return res.status(400).send({ status: false, message: "Invalid available Sizes" });
+        //     }
+        // }
 
-            if (Array.isArray(availableSizes) && availableSizes.length > 0) {
-                for (let i = 0; i < availableSizes.length; i++) {
-                    const element = availableSizes[i];
-                    if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(element)) {
-                        return res.status(400).send({status: false,message: `available sizes should be from:  S, XS, M, X, L, XXL, XL`,});
+
+        if (availableSizes) {
+            if (typeof (availableSizes == "string")) {
+                if (!isValidInputValue(availableSizes)) {
+                    return res.status(400).send({ status: false, message: "Invalid format of availableSizes" });
+                }
+                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+                for (let i = 0; i < availableSize.length; i++) {
+                    if (availableSizes == availableSize[i]) {
+                        continue;
                     }
                 }
-             updates["$set"]["availableSizes"] = availableSizes;
-            } else {
-                return res.status(400).send({ status: false, message: "Invalid available Sizes" });
+            }else{
+                return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
         }
+        updates["$set"]["availableSizes"] = availableSizes;
 
-      
+        //IF SIZE IS IN ARRAY----
+        console.log(availableSizes)
+        let size = availableSizes.split(",").map(x => (x))
+        if (availableSizes) {
+                console.log(size)
+                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+
+                for (let i = 0; i < availableSize.length; i++) {
+                    for (let j = 0; j < size.length; j++)
+                    if (size[j] == availableSize[i]) {
+                       continue;
+                    }
+                }
+            }else{
+                return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
+            }
+            updates["$set"]["availableSizes"] = size;
+
         // if request body has key name "installments" then after validating its value, same is added to updates object
         if (requestBody.hasOwnProperty("installments")) {
             if (!isValidNumber(installments)) {
@@ -374,7 +418,7 @@ const updateProductDetails = async function (req, res) {
         if (typeof image !== undefined) {
             if (image && image.length > 0) {
                 if (!isValidImageType(image[0].mimetype)) {
-                    return res.status(400).send({status: false,message: "Only images can be uploaded (jpeg/jpg/png)"});
+                    return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
                 }
                 const productImageUrl = await AWS.uploadFile(image[0]);
                 updates["$set"]["productImage"] = productImageUrl;
@@ -385,9 +429,9 @@ const updateProductDetails = async function (req, res) {
             return res.json("nothing is updated");
         }
         // updating product data of given ID by passing updates object
-        const updatedProduct = await productModel.findOneAndUpdate({ _id: productId },updates, { new: true });
+        const updatedProduct = await productModel.findOneAndUpdate({ _id: productId }, updates, { new: true });
 
-        res.status(200).send({status: true,message: "Product data updated successfully",data: updatedProduct});
+        res.status(200).send({ status: true, message: "Product data updated successfully", data: updatedProduct });
     } catch (error) {
         res.status(500).send({ error: error.message });
     }

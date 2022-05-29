@@ -211,9 +211,10 @@ const getProduct = async function (req, res) {
                 if (typeof (obj2[key]) == "string") {
                     obj2[key] = obj2[key].split(",")
                     for (let i = 0; i < obj2[key].length; i++)
-                        obj2[key][i] = obj2[key][i].trim()
+                        obj2[key][i] = obj2[key][i].toUpperCase().trim()
                     //$all in mongo that select the documents where the field holdes an array and contain all elements----
                     obj2[key] = { $all: obj2[key] }
+                  
                 }
                 else {
                     obj2[key] = { $all: obj2[key] }

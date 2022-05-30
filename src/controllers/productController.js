@@ -314,20 +314,22 @@ const updateProductDetails = async function (req, res) {
         // creating an empty object 
         const updates = { $set: {} };
 
-
+        //console.log(requestBody)
         // if request body has key name "title" then after validating its value, same is added to updates object
+
         if (requestBody.hasOwnProperty("title")) {
             if (!isValidInputValue(title)) {
                 return res.status(400).send({ status: false, message: "Invalid title" });
             }
-
+            console.log(isValidInputValue(title))
             const notUniqueTitle = await productModel.findOne({ title: title, });
-
+            //console.log(notUniqueTitle)
             if (notUniqueTitle) {
                 return res.status(400).send({ status: false, message: "Product title already exist" });
             }
 
             updates["$set"]["title"] = title.trim();
+            //console.log(updates)
         }
         // if request body has key name "description" then after validating its value, same is added to updates object
         if (requestBody.hasOwnProperty("description")) {
@@ -357,23 +359,9 @@ const updateProductDetails = async function (req, res) {
             }
             updates["$set"]["style"] = style;
         }
-        //if request body has key name "availableSizes" then after validating its value, same is added to updates object
-        // if (requestBody.hasOwnProperty("availableSizes")) {
-        //     if (Array.isArray(availableSizes) && availableSizes.length > 0) {
-        //         for (let i = 0; i < availableSizes.length; i++) {
-        //             const element = availableSizes[i];
-        //             if (!["S", "XS", "M", "X", "L", "XXL", "XL"].includes(element)) {
-        //                 return res.status(400).send({ status: false, message: `available sizes should be from:  S, XS, M, X, L, XXL, XL`, });
-        //             }
-        //         }
-        //         updates["$set"]["availableSizes"] = availableSizes;
-        //     } else {
-        //         return res.status(400).send({ status: false, message: "Invalid available Sizes" });
-        //     }
-        // }
-
-
+     
         if (availableSizes) {
+            console.log("1111")
             if (typeof (availableSizes == "string")) {
                 if (!isValidInputValue(availableSizes)) {
                     return res.status(400).send({ status: false, message: "Invalid format of availableSizes" });
@@ -391,26 +379,28 @@ const updateProductDetails = async function (req, res) {
         updates["$set"]["availableSizes"] = availableSizes;
 
         //IF SIZE IS IN ARRAY----
-        console.log(availableSizes)
-        let size = availableSizes.split(",").map(x => (x))
-        if (availableSizes) {
-                console.log(size)
+        //console.log(availableSizes)
+        if(availableSizes){
+            console.log("22222")
+            let size = availableSizes.split(",").map(x => (x))
                 let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-
+            if(availableSize){
                 for (let i = 0; i < availableSize.length; i++) {
                     for (let j = 0; j < size.length; j++)
                     if (size[j] == availableSize[i]) {
                        continue;
                     }
                 }
+                updates["$set"]["availableSizes"] = size;
             }else{
                 return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
-            updates["$set"]["availableSizes"] = size;
+        }
+        
 
         // if request body has key name "installments" then after validating its value, same is added to updates object
         if (requestBody.hasOwnProperty("installments")) {
-            if (!isValidNumber(installments)) {
+            if (!isValid(installments)) {
                 return res.status(400).send({ status: false, message: "invalid installments" });
             }
             updates["$set"]["installments"] = Number(installments);

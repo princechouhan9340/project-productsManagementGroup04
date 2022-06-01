@@ -46,11 +46,7 @@ const createOrder = async function (req, res) {
 
         // using destructuring
         let { cancellable } = req.body;
-        if (cancellable) {
-            if (!isValidInputValue(cancellable) || !isValidOnlyCharacters(cancellable)) {
-                return res.status(400).send({ status: false, message: "provide status for update" });
-            }
-        }
+       
         // getting user's cart details
         const userCartDetail = await CartModel.findOne({ userId: userId }).select({
             items: 1,

@@ -12,28 +12,25 @@ const authentication =  (req, res, next) => {
         if (!barer) {
             return res.status(400).send({ status: false, msg: "Token required! Please login to generate token" });
         }
+        
         const splitToken = barer.split(' ');
         const token = splitToken[1];
-        //console.log(token)
+
         let tokenValidity = jwt.decode(token, "Group-4");
-        //console.log(tokenValidity)
         let tokenTime = (tokenValidity.exp) * 1000;
-        //console.log(tokenTime)
         let CreatedTime = Date.now()
-       // console.log(CreatedTime)
+       
         if (CreatedTime > tokenTime) {
-            //console.log("run")
             return res.status(400).send({ status: false, msg: "token is expired, login again" })
         }
 
         const decoded =  jwt.verify(token, 'Group-4');
-        //console.log(decoded)
         if(!decoded) {
             return res.status(403).send({status: false, message: `Invalid authentication token in request`})  
         }
 
+        //set token userid in request body----
         req.userId = decoded.userId
-        //console.log(decoded.userId)
         next()
     } catch (error) {
         res.status(500).send({status: false, message: error.message})

@@ -104,7 +104,7 @@ const createProduct = async function (req, res) {
         if (!currencyId) return res.status(400).send({ status: false, msg: "currencyId required..!!" });
         if (!currencyFormat) return res.status(400).send({ status: false, msg: "currency format required..!!" });
 
-    
+
         //IF SIZE IS IN STRING----
         if (availableSizes) {
             if (typeof (availableSizes == "string")) {
@@ -117,7 +117,7 @@ const createProduct = async function (req, res) {
                         continue;
                     }
                 }
-            }else{
+            } else {
                 return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
         }
@@ -126,18 +126,18 @@ const createProduct = async function (req, res) {
         console.log(availableSizes)
         let size = availableSizes.split(",").map(x => (x))
         if (availableSizes) {
-                console.log(size)
-                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+            console.log(size)
+            let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
 
-                for (let i = 0; i < availableSize.length; i++) {
-                    for (let j = 0; j < size.length; j++)
+            for (let i = 0; i < availableSize.length; i++) {
+                for (let j = 0; j < size.length; j++)
                     if (size[j] == availableSize[i]) {
-                       continue;
+                        continue;
                     }
-                }
-            }else{
-                return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
+        } else {
+            return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
+        }
         data.availableSizes = size
 
 
@@ -214,7 +214,7 @@ const getProduct = async function (req, res) {
                         obj2[key][i] = obj2[key][i].toUpperCase().trim()
                     //$all in mongo that select the documents where the field holdes an array and contain all elements----
                     obj2[key] = { $all: obj2[key] }
-                  
+
                 }
                 else {
                     obj2[key] = { $all: obj2[key] }
@@ -359,7 +359,7 @@ const updateProductDetails = async function (req, res) {
             }
             updates["$set"]["style"] = style;
         }
-     
+
         if (availableSizes) {
             console.log("1111")
             if (typeof (availableSizes == "string")) {
@@ -372,7 +372,7 @@ const updateProductDetails = async function (req, res) {
                         continue;
                     }
                 }
-            }else{
+            } else {
                 return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
         }
@@ -380,23 +380,23 @@ const updateProductDetails = async function (req, res) {
 
         //IF SIZE IS IN ARRAY----
         //console.log(availableSizes)
-        if(availableSizes){
+        if (availableSizes) {
             console.log("22222")
             let size = availableSizes.split(",").map(x => (x))
-                let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
-            if(availableSize){
+            let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+            if (availableSize) {
                 for (let i = 0; i < availableSize.length; i++) {
                     for (let j = 0; j < size.length; j++)
-                    if (size[j] == availableSize[i]) {
-                       continue;
-                    }
+                        if (size[j] == availableSize[i]) {
+                            continue;
+                        }
                 }
                 updates["$set"]["availableSizes"] = size;
-            }else{
+            } else {
                 return res.status(400).send({ status: false, message: `avilablesize is ["S", "XS", "M", "X", "L", "XXL", "XL"] select size from avilablesize` });
             }
         }
-        
+
 
         // if request body has key name "installments" then after validating its value, same is added to updates object
         if (requestBody.hasOwnProperty("installments")) {

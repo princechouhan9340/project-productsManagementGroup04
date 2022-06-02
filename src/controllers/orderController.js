@@ -114,11 +114,11 @@ const createOrder = async function (req, res) {
         let findOrder = await orderModel.findOne({ _id: Id }).select({ items: { _id: 0 } })
 
         //updating product stock
-        const itemsInCart = userCartDetail.items;
-        for (let i = 0; i < itemsInCart.length; i++) {
-            const updateProductInstallments = await ProductModel.findOneAndUpdate({ _id: itemsInCart[i].productId }, { $inc: { installments: -itemsInCart[i].quantity } }, { new: true });
-            console.log(updateProductInstallments)
-        }
+        // const itemsInCart = userCartDetail.items;
+        // for (let i = 0; i < itemsInCart.length; i++) {
+        //     const updateProductInstallments = await ProductModel.findOneAndUpdate({ _id: itemsInCart[i].productId }, { $inc: { installments: -itemsInCart[i].quantity } }, { new: true });
+        //     console.log(updateProductInstallments)
+        // }
 
         //making cart empty again
         const makeCartEmpty = await CartModel.findOneAndUpdate({ userId: userId }, { $set: { items: [], totalPrice: 0, totalItems: 0 } }, { new: true });
@@ -196,6 +196,12 @@ let changeStatus = async function (req, res) {
 
             return res.status(200).send({ status: true, message: "Order cancled succesfully", data: updateOrder })
         }
+        // const userCartDetail = await CartModel.findOne({ userId: paramUserId })
+        // const itemsInCart = userCartDetail.items;
+        // for (let i = 0; i < itemsInCart.length; i++) {
+        //     const updateProductInstallments = await ProductModel.findOneAndUpdate({ _id: itemsInCart[i].productId }, { $inc: { installments: +itemsInCart[i].quantity } }, { new: true });
+        //     console.log(updateProductInstallments)
+        // }
 
     }
     catch (error) {

@@ -339,7 +339,7 @@ const updateUser = async function (req, res) {
     try {
         //FETCH DATA FROM REQUEST BODY-----
         let data = req.body;
-        
+
         //FETCH USER ID FROM PARAMS----- 
         const userIdFromParams = req.params.userId;
 
@@ -392,19 +392,17 @@ const updateUser = async function (req, res) {
         let saltRounds = 10;
         const image = req.files;
 
-        if(image){
-            if (!image || image.length == 0) {
-            return res.status(400).send({ status: false, message: "no profile image found" });
+
+        if (typeof image !== undefined) {
+            if (image && image.length > 0) {
+                if (!isValidImageType(image[0].mimetype)) {
+                    return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
+                }
+
+                const profilePic = await uploadFile(image[0]);
+                updatedData.profileImage = profilePic;
+            }
         }
-
-        if (!isValidImageType(image[0].mimetype)) {
-            return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
-        }
-
-        const profilePic = await uploadFile(image[0]);
-        updatedData.profileImage = profilePic;
-    }
-
         //===============================phone validation-========================================
 
         if (phone) {
@@ -468,7 +466,7 @@ const updateUser = async function (req, res) {
 
         //=========================================update data=============================
 
-        const updatedUser = await userModel .findOneAndUpdate({_id: userIdFromParams }, updatedData, { new: true });
+        const updatedUser = await userModel.findOneAndUpdate({ _id: userIdFromParams }, updatedData, { new: true });
 
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser });
     }

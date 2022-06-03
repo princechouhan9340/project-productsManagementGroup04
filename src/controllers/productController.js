@@ -243,7 +243,7 @@ const getProduct = async function (req, res) {
 
             }
             }
-            console.log(obj)
+            // console.log(obj)
             //let {a=9},let{ b= 10 }  let c = {a=9,b=10} === {...a,...b}
             //spread operator doing yhe concat job i.e add obj----
             const filterData = await productModel.find({ ...obj, ...obj2 }).sort({ price: 1 })
@@ -421,7 +421,7 @@ const updateProductDetails = async function (req, res) {
                 if (!isValidImageType(image[0].mimetype)) {
                     return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
                 }
-                const productImageUrl = await AWS.uploadFile(image[0]);
+                const productImageUrl = await uploadFile(image[0]);
                 updates["$set"]["productImage"] = productImageUrl;
             }
         }

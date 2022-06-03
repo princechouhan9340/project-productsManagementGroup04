@@ -193,9 +193,7 @@ const getProduct = async function (req, res) {
                 obj.$regex = name
             }
             //IF PRODUCT SIZE PRESENT IN QUERY PARAMS----
-            if (size) {
-                obj2.availableSizes = size
-            }
+            
 
             //IF PRODUCT PRISE PRESENT IN QUERY PARAMS----
             if (priceGreaterThan) {
@@ -211,6 +209,9 @@ const getProduct = async function (req, res) {
                 obj.$lt = priceLessThan
             }
             //IF MORE THEN ONE FILTER PRESENT FOR SINGLE ATTRIBUTE-----
+            if (size) {
+                obj2.availableSizes = size
+            
             for (let key in obj2) {
                 if (typeof (obj2[key]) == "string") {
                     obj2[key] = obj2[key].split(",")
@@ -224,7 +225,7 @@ const getProduct = async function (req, res) {
                     obj2[key] = { $all: obj2[key] }
                 }
             }
-
+        
             //VALIDATION FOR SIZE-----
             if (obj2.availableSizes) {
                 let availableSize = ["S", "XS", "M", "X", "L", "XXL", "XL"]
@@ -238,6 +239,7 @@ const getProduct = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Invalid format of Sizes" });
 
             }
+        }
             //let {a=9},let{ b= 10 }  let c = {a=9,b=10} === {...a,...b}
             //spread operator doing yhe concat job i.e add obj----
             const filterData = await productModel.find({ ...obj, ...obj2 }).sort({ price: 1 })

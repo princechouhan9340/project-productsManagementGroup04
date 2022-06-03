@@ -392,7 +392,8 @@ const updateUser = async function (req, res) {
         let saltRounds = 10;
         const image = req.files;
 
-        if (!image || image.length == 0) {
+        if(image){
+            if (!image || image.length == 0) {
             return res.status(400).send({ status: false, message: "no profile image found" });
         }
 
@@ -402,6 +403,7 @@ const updateUser = async function (req, res) {
 
         const profilePic = await uploadFile(image[0]);
         updatedData.profileImage = profilePic;
+    }
 
         //===============================phone validation-========================================
 

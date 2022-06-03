@@ -145,9 +145,13 @@ const createProduct = async function (req, res) {
 
         if (currencyFormat != "₹") return res.status(400).send({ status: false, msg: "only indian currency ₹ accepted..!!" });
 
-        if (files.length > 0) {
-            var profileImagessweetselfie = await uploadFile(files[0]);
+
+        if (!isValidImageType(image[0].mimetype)) {
+            return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
         }
+
+        var profileImagessweetselfie = await uploadFile(files[0]);
+
 
         data.productImage = profileImagessweetselfie;
 

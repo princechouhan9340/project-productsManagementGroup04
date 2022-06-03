@@ -236,11 +236,7 @@ const userRegistration = async function (req, res) {
         // CREATE DATA IN DATABASE----- 
         const newUser = await UserModel.create(userData);
 
-        res.status(201).send({
-            status: true,
-            message: "User successfully registered",
-            data: newUser,
-        });
+        res.status(201).send({ status: true, message: "User successfully registered", data: newUser, });
     } catch (error) {
         res.status(500).send({ error: error.message });
     }
@@ -358,7 +354,7 @@ const updateUser = async function (req, res) {
         const userIdFromToken = req.userId;
 
         if (userIdFromParams != userIdFromToken) {
-            return res.status(400).send({ status: false, message: "you are not authorised" })
+            return res.status(403).send({ status: false, message: "you are not authorised" })
         }
 
         //DESTRUCTURING OF DATA-----
@@ -373,14 +369,14 @@ const updateUser = async function (req, res) {
         //=======================================fname validation=====================================
 
         if (fname) {
-            if (!isValid(fname)) return res.status(400).send({ status: false, Message: "First name is required..!!" });
+            if (!isValid(fname)) return res.status(400).send({ status: false, Message: "First name is invalid..!!" });
             updatedData.fname = fname
         }
 
         //===================================lname validation==========================================
 
         if (lname) {
-            if (!isValid(lname)) return res.status(400).send({ status: false, Message: "Last name is required..!!" });
+            if (!isValid(lname)) return res.status(400).send({ status: false, Message: "Last name is invalid...!!" });
             updatedData.lname = lname
         }
 
@@ -398,10 +394,16 @@ const updateUser = async function (req, res) {
         let saltRounds = 10;
         const files = req.files;
 
-        if (files && files.length > 0) {
-            const profilePic = await aws.uploadFile(files[0]);
-            updatedData.profileImage = profilePic;
+        if (!image || image.length == 0) {
+            return res.status(400).send({ status: false, message: "no profile image found" });
         }
+
+        if (!isValidImageType(image[0].mimetype)) {
+            return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
+        }
+
+        const profilePic = await AWS.uploadFile(files[0]);
+        updatedData.profileImage = profilePic;
 
         //===============================phone validation-========================================
 
@@ -464,7 +466,7 @@ const updateUser = async function (req, res) {
 
         //=========================================update data=============================
 
-        const updatedUser = await userModel.findOneAndUpdate({ _id: userIdFromParams }, updatedData, { new: true });
+        const updatedUser = await userModel .findOneAndUpdate({_id: userIdFromParams }, updatedData, { new: true });
 
         return res.status(200).send({ status: true, message: "User profile updated", data: updatedUser });
     }

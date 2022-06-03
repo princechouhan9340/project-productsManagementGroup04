@@ -339,9 +339,7 @@ const updateUser = async function (req, res) {
     try {
         //FETCH DATA FROM REQUEST BODY-----
         let data = req.body;
-        if (Object.keys(data) == 0) {
-            return res.status(400).send({ status: false, msg: "please provide data to update..!!" })
-        }
+        
         //FETCH USER ID FROM PARAMS----- 
         const userIdFromParams = req.params.userId;
 
@@ -392,7 +390,7 @@ const updateUser = async function (req, res) {
         //=======================profile pic upload and validation==========================
         //LEVEL OF CODING IT INDICATES THE DEFICELTY LEVEL I.E FORM 4 TO 14
         let saltRounds = 10;
-        const files = req.files;
+        const image = req.files;
 
         if (!image || image.length == 0) {
             return res.status(400).send({ status: false, message: "no profile image found" });
@@ -402,7 +400,7 @@ const updateUser = async function (req, res) {
             return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
         }
 
-        const profilePic = await AWS.uploadFile(files[0]);
+        const profilePic = await uploadFile(image[0]);
         updatedData.profileImage = profilePic;
 
         //===============================phone validation-========================================
@@ -462,7 +460,9 @@ const updateUser = async function (req, res) {
                 }
             }
         }
-
+        if (Object.keys(updatedData) == 0) {
+            return res.status(400).send({ status: false, msg: "please provide data to update..!!" })
+        }
 
         //=========================================update data=============================
 

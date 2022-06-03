@@ -146,7 +146,7 @@ const createProduct = async function (req, res) {
         if (currencyFormat != "₹") return res.status(400).send({ status: false, msg: "only indian currency ₹ accepted..!!" });
 
 
-        if (!isValidImageType(image[0].mimetype)) {
+        if (!isValidImageType(files[0].mimetype)) {
             return res.status(400).send({ status: false, message: "Only images can be uploaded (jpeg/jpg/png)" });
         }
 

@@ -85,7 +85,7 @@ const createOrder = async function (req, res) {
         for (let i = 0; i < allProductsInCart.length; i++) {
             const isProductInStock = await ProductModel.findById(allProductsInCart[i].productId);
             if (isProductInStock.installments < allProductsInCart[i].quantity) {
-                console.log(isProductInStock.installments, "kjhjkgkjgkjgkjgbkj", allProductsInCart[i].quantity)
+                //console.log(isProductInStock.installments, "kjhjkgkjgkjgkjgbkj", allProductsInCart[i].quantity)
                 return res.status(400).send({ status: false, message: `${allProductsInCart[i].productId} is out of stock`, });
             }
         }

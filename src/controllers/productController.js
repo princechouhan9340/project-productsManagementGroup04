@@ -2,76 +2,8 @@
 const productModel = require("../models/productModel")
 const AWS = require("aws-sdk")
 const mongoose = require("mongoose");
-//const currencySymbol = require("currency-symbol-map");
-
-// validation for objectId-----
-const isValidObjectId = function (objectId) {
-    return mongoose.Types.ObjectId.isValid(objectId)
-
-}
-
-const isValidInputBody = function (object) {
-    return Object.keys(object).length > 0
-}
-
-const isValidInputValue = function (value) {
-    if (typeof (value) === 'undefined' || value === null) return false
-    if (typeof (value) === 'string' && value.trim().length > 0) return true
-    return false
-}
-
-const isValidPrice = function (price) {
-    let regexForPrice = /^\d+(\.\d{1,2})?$/
-    return regexForPrice.test(price)
-};
-
-
-const isValidImageType = function (value) {
-    const regexForMimeTypes = /image\/png|image\/jpeg|image\/jpg/;
-    return regexForMimeTypes.test(value)
-}
-
-// aws configuration--------
-AWS.config.update({
-    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
-
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link------
-        let s3 = new AWS.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "project05_group04/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            console.log(data)
-            console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-    })
-}
-
-
-//VALIDATION FOR STRINGS-----
-
-const isValid = function (value) {
-    if (typeof value == undefined || value == null) return false;
-    if (typeof value === 'string' && value.trim().length === 0) return false;
-    if (typeof value === 'Number' && value.toString().trim().length === 0) return false;
-    return true;
-}
-//VALIDATION FOR CHECK DATA IN REQ BODY-----
+const { uploadFile } = require('../aws/awsConfig')
+const {isValidImageType,isValidInputBody,isValidInputValue,isValid,isValidPrice} = require('../validaton/allValidation')
 
 
 const createProduct = async function (req, res) {

@@ -3,7 +3,8 @@ const express = require('express')
 
 // INSTATIATE THE EXPRESS APP------
 const app = express()
-
+const dotenv = require('dotenv');
+dotenv.config();
 // IMPORT MULTER PACKAGE------
 const multer = require("multer")
 const { AppConfig } = require('aws-sdk');

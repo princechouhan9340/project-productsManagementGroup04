@@ -3,28 +3,9 @@ const userModel = require("../models/userModel")
 const OrderModel = require("../models/orderModel");
 const CartModel = require("../models/cartModel");
 const ProductModel = require("../models/productModel");
+const {isValidInputBody,isValidObjectId,isValidInputValue,isValidOnlyCharacters} = require('../validaton/allValidation')
 const mongoose = require('mongoose')
 
-//**************************************************VALIDATORS **************************************************** */
-const isValidInputBody = function (object) {
-    return Object.keys(object).length > 0
-}
-
-const isValidObjectId = function (objectId) {
-    return mongoose.Types.ObjectId.isValid(objectId);
-};
-
-//VALIDATION FOR STRING------
-const isValidInputValue = function (value) {
-    if (typeof (value) === 'undefined' || value === null) return false
-    if (typeof (value) === 'string' && value.trim().length > 0) return true
-    return false
-}
-
-//VALIDATION FOR CHARACTERS----
-const isValidOnlyCharacters = function (value) {
-    return /^[A-Za-z]+$/.test(value)
-}
 
 //*******************************************CREATE ORDER*************************************************** */
 

@@ -2,29 +2,9 @@ const CartModel = require("../models/cartModel");
 const cartModel = require("../models/cartModel");
 const ProductModel = require("../models/productModel");
 const productModel = require("../models/productModel");
-const userModel = require("../models/userModel")
+const userModel = require("../models/userModel");
+const {isValidInputBody,isValidInputValue,isValidObjectId} = require('../validaton/allValidation')
 const mongoose = require('mongoose')
-
-
-//**************************************************VALIDATORS **************************************************** */
-
-const isValidInputBody = function (object) {
-    return Object.keys(object).length > 0
-}
-
-
-const isValidInputValue = function (value) {
-    if (typeof (value) === 'undefined' || value === null) return false
-    if (typeof (value) === 'string' && value.trim().length > 0) return true
-    return false
-}
-
-const isValidObjectId = function (objectId) {
-    return mongoose.Types.ObjectId.isValid(objectId);
-};
-
-
-
 
 
 //*********************************************ADD PRODUCT TO CART***************************************************** */

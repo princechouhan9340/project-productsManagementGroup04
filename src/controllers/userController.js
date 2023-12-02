@@ -3,105 +3,14 @@ const UserModel = require("../models/userModel");
 const AWS = require('aws-sdk')
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const userModel = require('../models/userModel')
-
-//VALIDATION FOR STRINGS-----
-const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false
-    if (typeof value === 'string' && value.trim().length === 0) return false
-    return true
-}
-//VALIDATION FOR CHECK DATA IN REQ BODY-----
-const isValidRequestBody = function (requestBody) {
-    return Object.keys(requestBody).length > 0
-}
+const userModel = require('../models/userModel');
+const {isValidImageType,isValidAddress,isValidEmail,isValidInputBody,isValidInputValue,isValidOnlyCharacters,isValidPassword,isValidPhone,isValidPincode,isValidRequestBody,isValid} = require('../validaton/allValidation')
+const {uploadFile} = require('../aws/awsConfig');
+const dotenv = require('dotenv');
+dotenv.config();
 
 
-//*********************************************AWS CONFIG******************************************** */
 
-AWS.config.update({
-    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
-
-let uploadFile = async (file) => {
-    return new Promise(function (resolve, reject) {
-        // this function will upload file to aws and return the link
-        let s3 = new AWS.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
-
-        var uploadParams = {
-            ACL: "public-read",
-            Bucket: "classroom-training-bucket",  //HERE
-            Key: "project05_group04/" + file.originalname, //HERE 
-            Body: file.buffer
-        }
-
-
-        s3.upload(uploadParams, function (err, data) {
-            if (err) {
-                return reject({ "error": err })
-            }
-            console.log(data)
-            console.log("file uploaded succesfully")
-            return resolve(data.Location)
-        })
-    })
-}
-
-
-const isValidInputBody = function (object) {
-    return Object.keys(object).length > 0
-}
-
-//VALIDATION FOR STRING------
-const isValidInputValue = function (value) {
-    if (typeof (value) === 'undefined' || value === null) return false
-    if (typeof (value) === 'string' && value.trim().length > 0) return true
-    return false
-}
-
-//VALIDATION FOR CHARACTERS----
-const isValidOnlyCharacters = function (value) {
-    return /^[A-Za-z]+$/.test(value)
-}
-
-//VALIDATION FOR ADDRESS-----
-const isValidAddress = function (value) {
-    if (typeof (value) === "undefined" || value === null) return false;
-    if (typeof (value) === "object" && Array.isArray(value) === false && Object.keys(value).length > 0) return true;
-    return false;
-};
-
-//VALIDATION FOR EMAIL-----
-const isValidEmail = function (email) {
-    const regexForEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    return regexForEmail.test(email);
-};
-
-//VALIDATION FOR PHONE NUMBER-----
-const isValidPhone = function (phone) {
-    const regexForMobile = /^[6-9]\d{9}$/;
-    return regexForMobile.test(phone);
-};
-
-//VALIDATION FOR PASSWORD-----
-const isValidPassword = function (password) {
-    const regexForPass = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,15}$/;
-    return regexForPass.test(password);
-};
-
-// VALIDATION FOR PIN-CODE-----
-const isValidPincode = function (pincode) {
-    const regexForPass = /^[1-9][0-9]{5}$/
-    return regexForPass.test(pincode);
-};
-
-//VALIDATION FOR FILE ONLY IMAGE-----
-const isValidImageType = function (value) {
-    const regexForMimeTypes = /image\/png|image\/jpeg|image\/jpg/;
-    return regexForMimeTypes.test(value)
-}
 
 //*********************************************USER REGISTRATION******************************************** */
 
@@ -219,6 +128,9 @@ const userRegistration = async function (req, res) {
         }
 
         const uploadedProfilePictureUrl = await uploadFile(image[0]);
+        if(uploadedProfilePictureUrl.error){
+            res.status(500).send({ error: uploadedProfilePictureUrl.error });
+        }
 
         //PASSWORD ENCRYPTION BY USING BCRYPT----- 
         const salt = await bcrypt.genSalt(13);
@@ -293,7 +205,7 @@ const login = async function (req, res) {
         const token = jwt.sign({
             userId: user._id, iat: Math.floor(Date.now() / 1000),
             exp: Math.floor(Date.now() / 1000) + 60 * 180
-        }, "Group-4")
+        }, process.env.SECRETKEY)
         //.FLOOR() IS A FUNCTION THAT IS USED TO RETURN THE LARGEST INTEGER----
         return res.status(200).send({ status: true, message: "User login successfull", data: { userId: user._id, token: token } })
 

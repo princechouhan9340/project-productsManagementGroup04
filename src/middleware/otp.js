@@ -15,7 +15,6 @@ let transporter = nodemailer.createTransport({
 	}
 });
 
-// async..await is not allowed in global scope, must use a wrapper
 async function sentOtp(user, otp) {
 	try{
 		let mailOptions = {

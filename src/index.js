@@ -1,6 +1,6 @@
 // IMPORT EXPRESS PACKAGE( COMMOM JS SYNTEX )------
-const express = require('express')
-
+const express = require('express');
+const client = require('./helper/redisClient')
 // INSTATIATE THE EXPRESS APP------
 const app = express()
 const dotenv = require('dotenv');

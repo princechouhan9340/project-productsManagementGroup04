@@ -2,10 +2,11 @@
 const UserModel = require("../models/userModel");
 const AWS = require('aws-sdk')
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const userModel = require('../models/userModel');
 const {isValidImageType,isValidAddress,isValidEmail,isValidInputBody,isValidInputValue,isValidOnlyCharacters,isValidPassword,isValidPhone,isValidPincode,isValidRequestBody,isValid} = require('../validaton/allValidation')
-const {uploadFile} = require('../aws/awsConfig');
+const {uploadFile} = require('../helper/awsConfig');
+const {sentOtp,genOtp} = require('../middleware/otp');
+const client = require('../helper/redisClient')
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -200,15 +201,17 @@ const login = async function (req, res) {
         if (!passwordDetails) {
             return res.status(400).send({ status: false, msg: "password is incorrect pls provide correct passwords" })
         }
-
-        //GENERATE JWT TOKEN IF EMAIL AND PASSWORD IS CORRECT-----
-        const token = jwt.sign({
-            userId: user._id, iat: Math.floor(Date.now() / 1000),
-            exp: Math.floor(Date.now() / 1000) + 60 * 180
-        }, process.env.SECRETKEY)
-        //.FLOOR() IS A FUNCTION THAT IS USED TO RETURN THE LARGEST INTEGER----
-        return res.status(200).send({ status: true, message: "User login successfull", data: { userId: user._id, token: token } })
-
+        let clientHash = await client.hGetAll(user.phone);
+        if(!clientHash.phone){
+            clientHash = await client.hSet(user.phone,{
+                fname : user.fname,
+                lname: user.lname,
+                email: user.email,
+                phone:user.phone
+            });
+        }
+       await client.expire(user.phone, 60*15)
+        genOtp(req,res,user)
     }
     catch (error) {
         console.log(error)

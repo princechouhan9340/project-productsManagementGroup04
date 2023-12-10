@@ -5,6 +5,7 @@ const prodectController = require('../controllers/productController')
 const middleware = require('../middleware/middleware')
 const cartController = require("../controllers/cartController")
 const orderController = require('../controllers/orderController')
+const otp = require('../middleware/otp')
 
 //test-api
 router.get('/test-me', function(req, res) {
@@ -13,8 +14,9 @@ router.get('/test-me', function(req, res) {
 
 //*********************************USERS APIS*********************************************/
 router.post('/register', UserController.userRegistration)
-router.post('/login', UserController.login)
-router.get("/user/:userId/profile",middleware.authentication, UserController.getUser)
+router.post('/login',UserController.login)
+router.post('/otp',otp.validateOtp)
+router.get("/user/:userId/profile",middleware.authentication,UserController.getUser)
 router.put("/user/:userId/profile",middleware.authentication, UserController.updateUser)
 
 

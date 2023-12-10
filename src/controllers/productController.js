@@ -2,7 +2,7 @@
 const productModel = require("../models/productModel")
 const AWS = require("aws-sdk")
 const mongoose = require("mongoose");
-const { uploadFile } = require('../aws/awsConfig')
+const { uploadFile } = require('../helper/awsConfig')
 const {isValidImageType,isValidInputBody,isValidInputValue,isValid,isValidPrice} = require('../validaton/allValidation')
 
 

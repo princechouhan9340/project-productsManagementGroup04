@@ -1,5 +1,20 @@
 const redis = require("redis"); 
-const client = redis.createClient(); 
+const dotenv = require('dotenv');
+dotenv.config();
+let client ;
+if(process.env.ENV == 'prod'){
+	 client = redis.createClient({
+		password: process.env.REDISPASS,
+		socket: {
+			host: process.env.REDISHOST,
+			port: process.env.REDISPORT
+		}
+	});
+}else{
+	 client = redis.createClient(); 
+}
+
+
 
 (async () => { 
 	await client.connect(); 

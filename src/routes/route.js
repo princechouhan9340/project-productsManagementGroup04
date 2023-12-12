@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const UserController = require('../controllers/userController')
-const prodectController = require('../controllers/productController')
+const productController = require('../controllers/productController')
 const middleware = require('../middleware/middleware')
 const cartController = require("../controllers/cartController")
 const orderController = require('../controllers/orderController')
@@ -17,15 +17,15 @@ router.post('/register', UserController.userRegistration)
 router.post('/login',UserController.login)
 router.post('/otp',otp.validateOtp)
 router.get("/user/:userId/profile",middleware.authentication,UserController.getUser)
-router.put("/user/:userId/profile",middleware.authentication, UserController.updateUser)
+router.put("/user/:userId/profile",middleware.authentication, UserController.updateUser) // pass in json
 
 
 //**********************************PRODUCTS APIS****************************************/
-router.post('/products',prodectController.createProduct)
-router.get('/products',prodectController.getProduct)
-router.get('/products/:productId',prodectController.getProductById)
-router.put('/products/:productId',prodectController.updateProductDetails)
-router.delete('/products/:productId',prodectController.delProduct)
+router.post('/products',productController.createProduct)
+router.get('/products',productController.getProduct)
+router.get('/products/:productId',productController.getProductById)
+router.put('/products/:productId',productController.updateProductDetails)
+router.delete('/products/:productId',productController.delProduct)
 
 
 //************************************CARTS APIS****************************************/

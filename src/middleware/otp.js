@@ -55,11 +55,12 @@ async function genOtp(req, res, user) {
 		let otp = Math.floor(Math.random() * 10000);
 		console.log("otp is", otp);
 		let obj = {
-			fname: user.fname,
+			fname : user.fname,
 			lname: user.lname,
 			email: user.email,
-			phone: user.phone,
-
+			phone:user.phone,
+			profileImage:user.profileImage,
+			address:user.address
 		}
 
 		let clientHash = await client.hGetAll(user.phone);

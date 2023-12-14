@@ -207,7 +207,9 @@ const login = async function (req, res) {
                 fname : user.fname,
                 lname: user.lname,
                 email: user.email,
-                phone:user.phone
+                phone:user.phone,
+                profileImage:user.profileImage,
+                address:user.address
             });
         }
        await client.expire(user.phone, 60*15)

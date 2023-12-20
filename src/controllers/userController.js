@@ -209,7 +209,7 @@ const login = async function (req, res) {
                 email: user.email,
                 phone:user.phone,
                 profileImage:user.profileImage,
-                address:user.address
+                address:JSON.stringify(user.address)
             });
         }
        await client.expire(user.phone, 60*15)

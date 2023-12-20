@@ -4,7 +4,14 @@ const OrderModel = require("../models/orderModel");
 const CartModel = require("../models/cartModel");
 const ProductModel = require("../models/productModel");
 const {isValidInputBody,isValidObjectId,isValidInputValue,isValidOnlyCharacters} = require('../validaton/allValidation')
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const Razorpay = require('razorpay');
+const { options } = require("mongoose");
+const instance = new Razorpay({
+    key_id: process.env.RAZORPAY_ID,
+    key_secret: process.env.RAZORPAY_KEY,
+  });
+
 
 
 //*******************************************CREATE ORDER*************************************************** */
@@ -113,6 +120,59 @@ const createOrder = async function (req, res) {
     }
 };
 
+let payment = async function (req,res){
+    try{
+
+        const orderId = req.params.orderId;
+        const result = await orderModel.findOne({_id:orderId});
+        console.log({ key_id: process.env.RAZORPAY_ID,
+            key_secret: process.env.RAZORPAY_KEY,
+            orderId:orderId
+        })
+        let options = {
+            amount: result.totalPrice,
+            currency: "INR",
+            receipt: result._id,
+        }
+        console.log(options)
+
+        instance.orders.create(options, function(err, order){
+            if(order){
+               return res.send({order_Details:order})
+            }else{
+               return res.send({error:err})
+            }
+        })
+
+        // payment url = https://pages.razorpay.com/pl_NEIrOwsU7usqU4/view
+        
+        
+
+    }catch(error){
+        console.log(err)
+    }
+}
+
+let getOrder = async function (req,res){
+    try{
+
+        const userId = req.params.userId;
+
+        if(userId){
+            const result = await orderModel.find({userId:userId})
+            if(result){
+                res.send({order_Details:result})
+            }else{
+                res.send("doc not found")
+            }
+        }
+        res.send("userid not found")
+
+    }catch(error){
+        console.log(error)
+    }
+}
+
 
 //*******************************************UPDATE ORDER*************************************************** */
 
@@ -190,4 +250,4 @@ let changeStatus = async function (req, res) {
     }
 }
 
-module.exports = { changeStatus, createOrder }
+module.exports = { changeStatus, createOrder, payment, getOrder }

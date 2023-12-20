@@ -60,7 +60,7 @@ async function genOtp(req, res, user) {
 			email: user.email,
 			phone:user.phone,
 			profileImage:user.profileImage,
-			address:user.address
+			address:JSON.stringify(user.address)
 		}
 
 		let clientHash = await client.hGetAll(user.phone);

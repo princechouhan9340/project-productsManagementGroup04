@@ -36,6 +36,8 @@ router.delete('/users/:userId/cart',middleware.authentication,cartController.del
 
 //************************************ORDERS APIS****************************************/
 router.post('/users/:userId/orders',middleware.authentication,orderController.createOrder)
+router.get('/users/:userId/orders',orderController.getOrder)
+router.post('/users/:orderId/payment',orderController.payment)
 router.put('/users/:userId/orders',middleware.authentication,orderController.changeStatus)
 
 module.exports = router

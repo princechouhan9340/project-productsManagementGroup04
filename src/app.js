@@ -31,7 +31,11 @@ mongoose.connect(process.env.MONGOURL,
 .catch ( err => console.log(err))
 
 // APP SET THEIR ENDPOINT IN ROUTE.JS----
+app.use('/pay', function (req,res){
+    res.sendFile(__dirname + "/index.html");
+})
 app.use('/',route)
+
 
 //CHECKING FOR INCORRECT ENDPOINTS-----
 app.all('*', function (req, res) {

@@ -6,7 +6,7 @@ const ProductModel = require("../models/productModel");
 const {isValidInputBody,isValidObjectId,isValidInputValue,isValidOnlyCharacters} = require('../validaton/allValidation')
 const mongoose = require('mongoose');
 const Razorpay = require('razorpay');
-const { options } = require("mongoose");
+const crypto = require("crypto")
 const instance = new Razorpay({
     key_id: process.env.RAZORPAY_ID,
     key_secret: process.env.RAZORPAY_KEY,
@@ -120,7 +120,7 @@ const createOrder = async function (req, res) {
     }
 };
 
-let payment = async function (req,res){
+let createPaymentorder = async function (req,res){
     try{
 
         const orderId = req.params.orderId;
@@ -138,7 +138,7 @@ let payment = async function (req,res){
 
         instance.orders.create(options, function(err, order){
             if(order){
-               return res.send({order_Details:order})
+               return res.status(200).send({order_Details:order,key:process.env.RAZORPAY_ID})
             }else{
                return res.send({error:err})
             }
@@ -149,6 +149,38 @@ let payment = async function (req,res){
         
 
     }catch(error){
+        console.log(err)
+    }
+}
+
+
+let paymentverification = async function (req,res){
+    try{
+	// STEP 7: Receive Payment Data 
+	const {order_id, payment_id,razorpay_signature} = req.body;	 
+
+	// Pass yours key_secret here 
+	const key_secret = process.env.RAZORPAY_KEY;	 
+
+	// STEP 8: Verification & Send Response to User 
+	
+	// Creating hmac object 
+	let hmac = crypto.createHmac('sha256', key_secret); 
+
+	// Passing the data to be hashed 
+	hmac.update(order_id + "|" + payment_id); 
+	
+	// Creating the hmac in the required format 
+	const generated_signature = hmac.digest('hex'); 
+	
+	
+	if(razorpay_signature===generated_signature){ 
+        console.log(true)
+		res.status(201).send({success:true, message:"Payment has been verified"}) 
+	} 
+	else
+	res.status(400).send({success:false, message:"Payment verification failed"}) 
+}catch(err){
         console.log(err)
     }
 }
@@ -250,4 +282,4 @@ let changeStatus = async function (req, res) {
     }
 }
 
-module.exports = { changeStatus, createOrder, payment, getOrder }
+module.exports = { changeStatus, createOrder, createPaymentorder, getOrder, paymentverification }

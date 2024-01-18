@@ -1,0 +1,144 @@
+<!-- Inside index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta content="This is a demo of Web integration 
+		of Razorpay in NodeJS" author="Mr. Prince chouhan" />
+	<title>Razorpay Web-Integration</title>
+
+	<!--Inside index.html -->
+</head>
+
+<body>
+	<hr />
+	<h2>Advanced Data Structures & Algorithms Course</h2>
+	<h3>Description</h3>
+
+	<ul>
+		<li>Best Course for SDE placements</li>
+		<li>
+			Available in 4 major Languages JAVA,
+			C/C++, Python, Javascript
+		</li>
+		<li>Lifetime Access</li>
+	</ul>
+
+	<span> Cost:- 499 Rupees
+		<button id="pay-button">
+			Pay Now & Get Access
+		</button>
+	</span>
+	<hr />
+
+	<!-- Processing Payment Checkout -->
+	<!-- We will write code for payment here, 
+		Replace this comment with the code we 
+		are explaining below in step 5 of the 
+		article -->
+
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+	<script>
+		
+		var options = {
+			"key":"rzp_test_Vxbw1vECGKkpFb",
+			"amount": "10000",
+			"currency": "INR",
+			"name": "eCom",
+			"description": "Pay & Checkout this Course, Upgrade your DSA Skill",
+			"image": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.uplabs.com%2Fposts%2Fecommerce-logo-online-tech-shop-logo-e-modern-logo&psig=AOvVaw1Kk6vOH9Pawc-IhskEgQJT&ust=1703410860330000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCKjoz6zYpIMDFQAAAAAdAAAAABAD",
+			"order_id":"order_NFhrwppQW5zgV8",
+			"handler": async function (response) {
+				try{
+				// console.log("Inside callback function",response,"jhgjhgj")
+				responsea = await fetch('/users/verification', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					"order_id": response.razorpay_order_id,
+					"payment_id": response.razorpay_payment_id,
+					"razorpay_signature":response.razorpay_signature
+				}),
+			})
+			responsea = await responsea.json();
+			// console.log(responsea)
+			if(responsea.success == true){
+				alert("Payment Succeeded");
+			}else{
+				alert("Payment Failed,Please try again");
+			}
+				
+				}catch(error){
+					console.log("call back error",error)
+				}
+			},
+			"prefill": {
+				//Here we are prefilling random contact 
+				"contact": "9876543210",
+				//name and email id, so while checkout 
+				"name": "prince chouhan",
+				"email": "pc75805@gmail.com"
+			},
+			"notes": {
+				"description": "Best Course for SDE placements",
+				"language": "Available in 4 major Languages JAVA, C/C++, Python, Javascript",
+				"access": "This course have Lifetime Access"
+			},
+			"theme": {
+				"color": "#2300a3"
+			}
+		};
+
+		async function order() {
+			 response = await fetch('/users/629cb0b15ad6ef620cd88706/payment', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					"amount": "490",
+					"currency": "INR",
+				}),
+			})
+
+			data = await response.json();
+			console.log("data response -------------------->",data)
+			console.log("details",data.order_Details)
+			return data
+				
+		}
+
+		function callpayment(){
+			return new Razorpay(options);
+		}
+		
+	
+
+
+
+		document.getElementById('pay-button').onclick = async function (e) {
+			data = await order();
+			options.key = data.key
+			options.amount = parseInt(data.order_Details.amount)*100
+			options.order_id = data.order_Details.id
+			console.log("options-------------------->",options)
+			let razorpayObject = await callpayment();
+			razorpayObject.open();
+			console.log("onject return",razorpayObject); 
+			razorpayObject.on('payment.failed', function (response) {
+			console.log(response);
+			alert("This step of Payment Failed");
+		});
+			e.preventDefault();
+		} 
+	</script>
+
+
+</body>
+
+
+
+</html>

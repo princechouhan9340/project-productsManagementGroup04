@@ -8,7 +8,7 @@ const orderController = require('../controllers/orderController')
 const otp = require('../middleware/otp')
 
 //test-api
-router.get('/test-me', function(req, res) {
+router.get('/test', function(req, res) {
     res.send({ status: true, message: "test-api working fine" })
 })
 
@@ -37,7 +37,8 @@ router.delete('/users/:userId/cart',middleware.authentication,cartController.del
 //************************************ORDERS APIS****************************************/
 router.post('/users/:userId/orders',middleware.authentication,orderController.createOrder)
 router.get('/users/:userId/orders',orderController.getOrder)
-router.post('/users/:orderId/payment',orderController.payment)
+router.post('/users/:orderId/payment',orderController.createPaymentorder)
+router.post('/users/verification',orderController.paymentverification)
 router.put('/users/:userId/orders',middleware.authentication,orderController.changeStatus)
 
 module.exports = router
